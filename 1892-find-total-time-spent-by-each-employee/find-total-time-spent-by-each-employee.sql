@@ -5,6 +5,4 @@ SELECT
 FROM 
     Employees
 GROUP BY 
-    emp_id, event_day
-ORDER BY 
-    day, emp_id;
+    event_day, emp_id;
