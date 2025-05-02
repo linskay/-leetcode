@@ -1,35 +1,46 @@
 class Solution {
     public String pushDominoes(String dominoes) {
-        int N = dominoes.length();
-        int[] indexes = new int[N+2];
-        char[] symbols = new char[N+2];
-        int len = 1;
-        indexes[0] = -1;
-        symbols[0] = 'L';
-
-        for (int i = 0; i < N; ++i)
-            if (dominoes.charAt(i) != '.') {
-                indexes[len] = i;
-                symbols[len++] = dominoes.charAt(i);
+        char[] arr = dominoes.toCharArray();
+        int n = arr.length;
+        int[] forces = new int[n];
+        
+        // Calculate right forces
+        int force = 0;
+        for (int i = 0; i < n; i++) {
+            if (arr[i] == 'R') {
+                force = n;
+            } else if (arr[i] == 'L') {
+                force = 0;
+            } else {
+                force = Math.max(force - 1, 0);
             }
-
-        indexes[len] = N;
-        symbols[len++] = 'R';
-
-        char[] ans = dominoes.toCharArray();
-        for (int index = 0; index < len - 1; ++index) {
-            int i = indexes[index], j = indexes[index+1];
-            char x = symbols[index], y = symbols[index+1];
-            char write;
-            if (x == y) {
-                for (int k = i+1; k < j; ++k)
-                    ans[k] = x;
-            } else if (x > y) {
-                for (int k = i+1; k < j; ++k)
-                    ans[k] = k-i == j-k ? '.' : k-i < j-k ? 'R' : 'L';
+            forces[i] += force;
+        }
+        
+        // Calculate left forces
+        force = 0;
+        for (int i = n - 1; i >= 0; i--) {
+            if (arr[i] == 'L') {
+                force = n;
+            } else if (arr[i] == 'R') {
+                force = 0;
+            } else {
+                force = Math.max(force - 1, 0);
+            }
+            forces[i] -= force;
+        }
+        
+        // Determine the final state
+        StringBuilder result = new StringBuilder();
+        for (int f : forces) {
+            if (f > 0) {
+                result.append('R');
+            } else if (f < 0) {
+                result.append('L');
+            } else {
+                result.append('.');
             }
         }
-
-        return String.valueOf(ans);
+        return result.toString();
     }
 }
