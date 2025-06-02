@@ -1,55 +1,42 @@
 class Solution {
     public int[] maxSumOfThreeSubarrays(int[] nums, int k) {
-        int n = nums.length;
-        int[] prefixSum = new int[n + 1];
-        for (int i = 0; i < n; i++) {
-            prefixSum[i + 1] = prefixSum[i] + nums[i];
+        int[] W = new int[nums.length - k + 1];
+        int currSum = 0;
+        for (int i = 0; i < nums.length; i++) {
+            currSum += nums[i];
+            if (i >= k) {
+                currSum -= nums[i - k];
+            }
+            if (i >= k - 1) {
+                W[i - k + 1] = currSum;
+            }
         }
 
-        int m = n - k + 1;
-        int[] subarraySums = new int[m];
-        for (int i = 0; i < m; i++) {
-            subarraySums[i] = prefixSum[i + k] - prefixSum[i];
-        }
-        
-        int[] left = new int[m];
+        int[] left = new int[W.length];
         int best = 0;
-        for (int i = 0; i < m; i++) {
-            if (subarraySums[i] > subarraySums[best]) {
-                best = i;
-            }
+        for (int i = 0; i < W.length; i++) {
+            if (W[i] > W[best]) best = i;
             left[i] = best;
         }
 
-        int[] right = new int[m];
-        best = m - 1;
-        for (int i = m - 1; i >= 0; i--) {
-            if (subarraySums[i] >= subarraySums[best]) {
+        int[] right = new int[W.length];
+        best = W.length - 1;
+        for (int i = W.length - 1; i >= 0; i--) {
+            if (W[i] >= W[best]) {
                 best = i;
             }
             right[i] = best;
         }
         
-        int maxSum = 0;
-        int[] result = new int[3];
-        for (int j = k; j < m - k; j++) {
-            int i = left[j - k];
-            int l = right[j + k];
-            int currentSum = subarraySums[i] + subarraySums[j] + subarraySums[l];
-            if (currentSum > maxSum) {
-                maxSum = currentSum;
-                result[0] = i;
-                result[1] = j;
-                result[2] = l;
-            } else if (currentSum == maxSum) {
-                if (i < result[0] || (i == result[0] && j < result[1]) || (i == result[0] && j == result[1] && l < result[2])) {
-                    result[0] = i;
-                    result[1] = j;
-                    result[2] = l;
-                }
+        int[] ans = new int[]{-1, -1, -1};
+        for (int j = k; j < W.length - k; j++) {
+            int i = left[j - k], l = right[j + k];
+            if (ans[0] == -1 || W[i] + W[j] + W[l] > W[ans[0]] + W[ans[1]] + W[ans[2]]) {
+                ans[0] = i;
+                ans[1] = j;
+                ans[2] = l;
             }
         }
-        
-        return result;
+        return ans;
     }
 }
